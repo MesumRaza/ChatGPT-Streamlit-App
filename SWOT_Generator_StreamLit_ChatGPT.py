@@ -27,7 +27,7 @@ def generate_response_openrouter(prompt):
     model="google/palm-2-chat-bison", # Optional (user controls the default),
     messages=[{"role": "system", "content": "You are a Management Consultant",'role': 'user','content': prompt}],
     headers={ 'Authorization': 'Bearer {key}'.format(key=openai.api_key)
-              ,"HTTP-Referer": 'http://localhost:8501/' # To identify your app
+              ,"HTTP-Referer": 'https://mesumraza-chatgpt-strea-swot-generator-streamlit-chatgpt-jdwyhz.streamlit.app/' # To identify your app
               ,"X-Title": 'SWOT_Generator_StreamLit_ChatGPT' },
     )
     reply = response.choices[0].message.content.strip()
