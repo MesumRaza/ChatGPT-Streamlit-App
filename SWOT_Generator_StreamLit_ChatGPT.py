@@ -21,12 +21,12 @@ def generate_prompt(company_description):
 
 def generate_response_openrouter(prompt):
     openai.api_base = "https://openrouter.ai/api/v1"
-    openai.api_key = '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'
+    openai.api_key = st.secrets['open_router_key']
 
     response = openai.ChatCompletion.create(
     model="google/palm-2-chat-bison", # Optional (user controls the default),
     messages=[{"role": "system", "content": "You are a Management Consultant",'role': 'user','content': prompt}],
-    headers={ 'Authorization': 'Bearer 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'
+    headers={ 'Authorization': 'Bearer {key}'.format(key=openai.api_key)
               ,"HTTP-Referer": 'http://localhost:8501/' # To identify your app
               ,"X-Title": 'SWOT_Generator_StreamLit_ChatGPT' },
     )
