@@ -1,6 +1,6 @@
 import openai
-import streamlit as st
 import json
+import streamlit as st
 
 # Set up OpenAI API credentials
 
@@ -18,9 +18,24 @@ def generate_prompt(company_description):
     , "Threat": Business Threats in Comma Seperated Python List Format}""")
     
     return prompt
-       
 
-def generate_response(prompt,openai_api_key):
+def generate_response_openrouter(prompt):
+    openai.api_base = "https://openrouter.ai/api/v1"
+    openai.api_key = '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'
+
+    response = openai.ChatCompletion.create(
+    model="google/palm-2-chat-bison", # Optional (user controls the default),
+    messages=[{"role": "system", "content": "You are a Management Consultant",'role': 'user','content': prompt}],
+    headers={ 'Authorization': 'Bearer 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'
+              ,"HTTP-Referer": 'http://localhost:8501/' # To identify your app
+              ,"X-Title": 'SWOT_Generator_StreamLit_ChatGPT' },
+    )
+    reply = response.choices[0].message.content.strip()
+    
+    return reply
+
+
+def generate_response_chatgpt(prompt,openai_api_key):
     
     response = openai.Completion.create(
         engine="text-davinci-003",
@@ -36,15 +51,27 @@ def generate_response(prompt,openai_api_key):
 # Define the layout of the Streamlit app
 st.title("SWOT Analysis Generator")
 
-openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
-openai.api_key = openai_api_key
+model_choice = st.selectbox('Select your Model Mode',['Free','ChatGPT'])
+
+if model_choice=='ChatGPT':
+    openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
 
 company_description = st.text_area("Enter your Company's Detailed Outlook here:")
 
 if st.button("Generate"):
+    
     prompt = generate_prompt(company_description)
-    api_response = json.loads(generate_response(prompt,openai_api_key))
-       
+    
+    
+    with st.spinner(text="Loading Wisdom..."):
+        if model_choice=='Free':
+            api_response = json.loads(generate_response_openrouter(prompt))
+        elif model_choice=='ChatGPT':
+            api_response = json.loads(generate_response_chatgpt(prompt,openai_api_key))        
+        
+        
+    st.divider()
+    
     format_output_tab,prompt_input_tab,api_response_tab = st.tabs(["Formatted Output","Prompt Input","API Response"])
 
     with format_output_tab:
